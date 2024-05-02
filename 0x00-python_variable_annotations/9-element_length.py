@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+""" len """
 from typing import Iterable, Sequence, List, Tuple
 
 
