@@ -21,15 +21,24 @@ class TestGithubOrgClient(unittest.TestCase):
         expected_url = f'https://api.github.com/orgs/{input}'
         mock_get_json.assert_called_once_with(expected_url)
 
-    @patch.object(GithubOrgClient, 'org')
-    def test_public_repos_url(self, mock_org):
-        """Test _public_repos_url property"""
-        expected_payload = {'public_repos': 10}
-        mock_org.return_value = expected_payload
+    @patch.object(
+            GithubOrgClient,
+            '_public_repos_url',
+            return_value='https://api.github.com/orgs/testorg/repos')
+    @patch('client.get_json')
+    def test_public_repos(self, mock_get_json, mock_public_repos_url):
+        """Test public_repos method of GithubOrgClient"""
+        payload = [{'name': 'repo1'}, {'name': 'repo2'}, {'name': 'repo3'}]
+        mock_get_json.return_value = payload
 
         test_class = GithubOrgClient('testorg')
-        expected_url = f'https://api.github.com/orgs/testorg/repos'
-        self.assertEqual(test_class._public_repos_url, expected_url)
+        repos = test_class.public_repos()
+
+        self.assertEqual(repos, ['repo1', 'repo2', 'repo3'])
+
+        mock_public_repos_url.assert_called_once()
+        mock_get_json.assert_called_once_with(
+                'https://api.github.com/orgs/testorg/repos')
 
 
 if __name__ == '__main__':
